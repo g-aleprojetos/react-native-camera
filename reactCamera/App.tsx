@@ -1,11 +1,13 @@
-import { Text, View } from 'react-native'
+import React from 'react';
+import { SafeAreaView } from 'react-native';
+import Camera from './src/Components/Camera';
 
 const App = () => {
 
   return (
-    <View>
-      <Text>Novo</Text>
-    </View>
+    <SafeAreaView style={{flex: 1}}>
+      <Camera/>
+    </SafeAreaView>
   );
 };
 
