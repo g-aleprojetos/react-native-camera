@@ -1,15 +1,21 @@
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import ImagePicker, { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import React, {useState} from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import ImagePicker, {launchCamera} from 'react-native-image-picker';
+import {DocumentDirectoryPath, writeFile} from 'react-native-fs';
 
 const Camera = () => {
   const [imagePhoto, setImagePhoto] = useState<string | undefined>();
-
-
+  const path = `${DocumentDirectoryPath}/${Date.now()}.txt`;
 
   const openCamera = async () => {
     let options: ImagePicker.CameraOptions = {
-      saveToPhotos: true,
       mediaType: 'photo',
       quality: 0.1,
       cameraType: 'back',
@@ -17,37 +23,39 @@ const Camera = () => {
 
     await launchCamera(options, response => {
       if (response.didCancel) {
-        console.log('User Cancellet image picker')
+        console.log('User Cancellet image picker');
       } else if (response.errorCode) {
-        console.log(response.errorMessage)
+        console.log(response.errorMessage);
       } else {
         if (response.assets) {
-          setImagePhoto(response.assets[0].uri)
-          console.log(response.assets)
+          setImagePhoto(response.assets[0].uri);
+          console.log(response.assets);
         }
       }
     });
+  };
 
-  }
+  const saveFile = async () => {
+    try {
+      await writeFile(path, 'String', 'utf8');
+      Alert.alert('File saved', 'OK');
+    } catch (e) {
+      console.log('error', e);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {
-        imagePhoto &&
-        <Image
-          source={{ uri: imagePhoto }}
-          style={{ width: 200, height: 300 }} />
-      }
-      <TouchableOpacity
-        onPress={openCamera}
-        style={styles.button}>
-        <Text
-          style={styles.buttonText}>Select File</Text>
+      {imagePhoto && <Image source={{uri: imagePhoto}} style={styles.photo} />}
+      <TouchableOpacity onPress={openCamera} style={styles.button}>
+        <Text style={styles.buttonText}>Open Photo</Text>
       </TouchableOpacity>
-
+      <TouchableOpacity onPress={saveFile} style={styles.button}>
+        <Text style={styles.buttonText}>Save File</Text>
+      </TouchableOpacity>
     </View>
   );
-}
+};
 
 export default Camera;
 
@@ -57,7 +65,7 @@ const styles = StyleSheet.create({
     padding: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   button: {
     width: 250,
@@ -66,11 +74,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,
-    marginBottom: 12
+    marginBottom: 12,
   },
   buttonText: {
     textAlign: 'center',
     fontSize: 15,
-    color: '#fff'
-  }
+    color: '#fff',
+  },
+  photo: {
+    width: 200,
+    height: 300,
+  },
 });
